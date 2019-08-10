@@ -1,9 +1,17 @@
-var http = require("http");
+const { ApolloServer,PubSub} = require("apollo-server");
+const mongoose = require("mongoose");
 
-//create a server object:
-http
-  .createServer(function(req, res) {
-    res.write("Hello World!"); //write a response to the client
-    res.end(); //end the response
-  })
-  .listen(8080); //the server object listens on port 8080
+
+const pubsub = new PubSub()
+const typeDefs = require('./graphql/typedefs')
+const resolvers = require('./graphql/resolvers')
+
+
+
+mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true }, () =>
+  console.log("Connected To DB 🧾")
+);
+
+const server = new ApolloServer({ typeDefs, resolvers ,context: ({req})=> ({req , pubsub})});
+
+server.listen(8080, arg => console.log("Server Running 🚀"));
